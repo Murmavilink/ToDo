@@ -1,17 +1,31 @@
+'use strict';
+
 const todoControl = document.querySelector('.todo-control');
 const headerInput = document.querySelector('.header-input');
 const todoList = document.querySelector('.todo-list');
 const todoCompleted = document.querySelector('.todo-completed');
 
 
-// const toDoData = [];
-const toDoData = JSON.parse(localStorage.getItem('array'));
-
-// console.log(toDoData);
 
 
+// Получаем массив под ключом toDo из localStorage, или пустой массив
+const toDoData = JSON.parse(localStorage.getItem('toDo')) || [];
+
+
+// Функция добавляет массив toDoData в localStorage под ключом toDo
+const addArrayToLocalStorage = function() {
+    localStorage.setItem('toDo', JSON.stringify(toDoData));
+};
+
+
+// Проверка на пустое поле ввода
+const examinationValue = function (value) {
+    return value.trim() ? true : false;
+};
+
+
+// Функция render создает тег li и добавляет в todoList или todoCompleted
 const render = function() {
-    console.log(toDoData);
 
     todoList.innerHTML = '';
     todoCompleted.innerHTML = '';
@@ -31,13 +45,15 @@ const render = function() {
 
         if(item.completed) {
             todoCompleted.insertAdjacentElement('beforeend', li);
+            addArrayToLocalStorage();
         } else {
             todoList.insertAdjacentElement('beforeend', li);
+            addArrayToLocalStorage();
         }
 
         if(item.remove) {
             toDoData.splice(index, 1);
-            localStorage.setItem('array', JSON.stringify(toDoData));
+            addArrayToLocalStorage();
             render();
         }
 
@@ -45,28 +61,19 @@ const render = function() {
             item.completed = !item.completed;
             render();
         });
-
         
         li.querySelector('.todo-remove').addEventListener('click', function() {
             item.remove = !item.remove;
             render();
         });
 
-
-
     });
 };
 
 
-const examinationValue = function (value) {
-    return value.trim() ? true : false;
-};
-
-
+// Создает новый массив newToDo и делает push в toDoData, потом вызывает addArrayToLocalStorage render
 todoControl.addEventListener('submit', function(event) {
     event.preventDefault();
-
-   
 
     if(examinationValue(headerInput.value)) {
         const newToDo = {
@@ -78,18 +85,11 @@ todoControl.addEventListener('submit', function(event) {
         toDoData.push(newToDo);
         headerInput.value = '';
 
-        localStorage.setItem('array', JSON.stringify(toDoData));
-    
+        addArrayToLocalStorage();
         render();
     }
-
 
 });
 
 
-if(toDoData.length) {
-    // console.log(true);
-    render();
-} else {
-    // console.log(false);
-}
+render();
